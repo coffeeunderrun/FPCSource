@@ -59,7 +59,8 @@
              cpu_z80,                      { 22 }
              cpu_mips64,                   { 23 }
              cpu_mips64el,                 { 24 }
-             cpu_loongarch64               { 25 }
+             cpu_loongarch64,              { 25 }
+             cpu_w65816                    { 26 }  
        );
 
        tasmmode= (asmmode_none
@@ -80,6 +81,7 @@
             ,asmmode_i8086_att
             ,asmmode_arm_gas_unified
             ,asmmode_xtensa_gas
+            ,asmmode_w65816_ca65
        );
 
      (* IMPORTANT NOTE:
@@ -218,7 +220,8 @@
              system_mipsel_ps1,         { 123 }
              system_wasm32_wasip1threads,{ 124 }
              system_wasm32_wasip2,      { 125 }
-             system_powerpc64_freebsd   { 126 }
+             system_powerpc64_freebsd,  { 126 }
+             system_w65816_embedded     { 127 }
        );
 
      type
@@ -296,6 +299,7 @@
              ,as_clang_llvm_darwin
              ,as_m68k_elf32
              ,as_win64_gas
+             ,as_w65816_ca65
        );
 
        tlink = (ld_none,

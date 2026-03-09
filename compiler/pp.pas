@@ -43,6 +43,7 @@ program pp;
   SPARC               generate a compiler for SPARC
   SPARC64             generate a compiler for SPARC64
   WASM32              generate a compiler for WebAssembly 32-bit
+  W65816              generate a compiler for the WDC 65816
   X86_64              generate a compiler for the AMD x86-64 architecture
   XTENSA              generate a compiler for XTENSA
   Z80                 generate a compiler for Z80
@@ -208,6 +209,12 @@ program pp;
   {$endif CPUDEFINED}
   {$define CPUDEFINED}
 {$endif LOONGARCH64}
+{$ifdef W65816}
+  {$ifdef CPUDEFINED}
+    {$fatal ONLY one of the switches for the CPU type must be defined}
+  {$endif CPUDEFINED}
+  {$define CPUDEFINED}
+{$endif W65816}
 
 {$ifndef CPUDEFINED}
   {$fatal A CPU type switch must be defined}

@@ -1055,6 +1055,9 @@ begin
 {$ifdef loongarch64}
       'l',
 {$endif}
+{$ifdef w65816}
+      'w',
+{$endif}
       '*' : show:=true;
      end;
      if show then
@@ -4831,6 +4834,13 @@ procedure read_arguments(cmd:TCmdStr);
         def_system_macro('FPC_REQUIRES_PROPER_ALIGNMENT');
         def_system_macro('FPC_LOCALS_ARE_STACK_REG_RELATIVE');
       {$endif loongarch64}
+
+      {$ifdef w65816}
+        def_system_macro('CPUW65816');
+        def_system_macro('CPU16');
+        def_system_macro('FPC_CURRENCY_IS_INT64');
+        def_system_macro('FPC_COMP_IS_INT64');
+      {$endif w65816}
 
       {$if defined(cpu8bitalu)}
         def_system_macro('CPUINT8');

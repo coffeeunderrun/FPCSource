@@ -1,0 +1,147 @@
+; #       = immediate
+; a       = absolute
+; a,x     = absolute indexed with x
+; a,y     = absolute indexed with y
+; al      = absolute long
+; al,x    = absolute long indexed
+; d       = direct
+; d,s     = stack relative
+; d,x     = direct indexed with x
+; d,y     = direct indexed with y
+; r       = program counter relative
+; rl      = program counter relative long
+; s       = stack
+; x       = register x
+; y       = register y
+; (a)     = absolute indirect
+; (al)    = absolute indirect long
+; (a,x)   = absolute indexed indirect
+; (d)     = direct indirect
+; (d,s),y = stack relative indirect indexed
+; (d,x)   = direct indexed indirect
+; (d),y   = direct indirect indexed
+; (dl)    = direct indirect long
+; (dl),y   = direct indirect long indexed
+; xyc     = block move
+
+; New 65816 Addressing Modes
+;     Absolute Long                     al
+;     Absolute Long Indexed, X          al,x
+;     Stack Relative                    d,s
+;     Stack Relative Indirect Indexed   (d,s),y
+;     Direct Indirect Long              [d]
+;     Absolute Indexed Indirect         (a,x)
+
+/None
+void                  void                  none
+
+/ADC
+#                     $69,{0}               6502
+a                     $6D,{0}               6502
+a,x                   $7D,{0}               6502
+a,y                   $79,{0}               6502
+al                    $6F,{0}               65816
+al,x                  $7F,{0}               65816
+d                     $65,{0}               6502
+d,s                   $63,{0}               65816
+d,x                   $75,{0}               6502
+(d)                   $72,{0}               6502
+(d,s),y               $73,{0}               65816
+(d,x)                 $61,{0}               6502
+(d),y                 $71,{0}               6502
+[d]                   $67,{0}               65816
+[d],y                 $77,{0}               65816
+
+/AND
+
+/ASL
+
+/BCC
+
+/BCS
+
+/BEQ
+
+/BIT
+
+/BMI
+
+/BNE
+
+/BPL
+
+/BRA
+r                     $80,{0}               6502
+
+/BRK
+
+/BRL
+rl                    $82,{0}               65816
+
+/BVC
+
+/BVS
+
+/CLC
+
+/CLD
+
+/CLI
+
+/CLV
+
+/CMP
+
+/COP
+
+/CPX
+
+/CPY
+
+/DEC
+
+/DEX
+
+/DEY
+
+/EOR
+
+/INC
+
+/INX
+
+/INY
+
+/JML
+
+/JMP
+
+/JSL
+
+/JSR
+
+/LDA
+
+/LDX
+
+/LDY
+
+/LSR
+
+/MVN
+b,b                   $54,{0},{1}           65816
+
+/MVP
+b,b                   $44,{0},{1}           65816
+
+/NOP
+
+/ORA
+
+/PEA
+
+/PEI
+
+/PER
+
+/PHA

@@ -90,7 +90,8 @@ const
     { 22 } 'z80',
     { 23 } 'mips64',
     { 24 } 'mips64el',
-    { 25 } 'loongarch64'
+    { 25 } 'loongarch64',
+    { 26 } 'w65816'
     );
 
   CpuHasController : array[tsystemcpu] of boolean =
@@ -120,7 +121,8 @@ const
     { 22 } true  {'z80'},
     { 23 } false {'mips64'},
     { 24 } false {'mips64el'},
-    { 25 } false {'loongarch64'}
+    { 25 } false {'loongarch64'},
+    { 26 } false  {'w65816'}
     );
 
 { List of all supported system-cpu couples }
@@ -252,7 +254,8 @@ const
   { 123 } 'PS1-mipsel',
   { 124 } 'WASIp1threads-WASM32',
   { 125 } 'WASIp2-WASM32',
-  { 126 } 'FreeBSD-powerpc64'
+  { 126 } 'FreeBSD-powerpc64',
+  { 127 } 'Embedded-W65816'
   );
 
 const

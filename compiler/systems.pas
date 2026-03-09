@@ -315,7 +315,7 @@ interface
                            system_jvm_java32,system_mipseb_embedded,system_mipsel_embedded,
                            system_i8086_embedded,system_riscv32_embedded,system_riscv64_embedded,
                            system_xtensa_embedded,system_z80_embedded,system_wasm32_embedded,
-                           system_aarch64_embedded];
+                           system_aarch64_embedded, system_w65816_embedded];
 
        { all FreeRTOS systems }
        systems_freertos = [system_xtensa_freertos,system_arm_freertos,system_riscv32_freertos];
@@ -333,7 +333,7 @@ interface
        ;
 
        { systems that allow external far variables }
-       systems_allow_external_far_var = [system_i8086_msdos,system_i8086_win16,system_i8086_embedded];
+       systems_allow_external_far_var = [system_i8086_msdos,system_i8086_win16,system_i8086_embedded,system_w65816_embedded];
 
        { all symbian systems }
        systems_symbian = [system_i386_symbian,system_arm_symbian];
@@ -492,7 +492,7 @@ interface
             ('','i386','m68k','alpha','powerpc','sparc','vm','ia64','x86_64',
              'mips','arm', 'powerpc64', 'avr', 'mipsel','jvm', 'i8086',
              'aarch64', 'wasm32', 'sparc64', 'riscv32', 'riscv64', 'xtensa',
-             'z80', 'mips64', 'mips64el', 'loongarch64');
+             'z80', 'mips64', 'mips64el', 'loongarch64', 'w65816');
 
        abiinfo : array[tabi] of tabiinfo = (
          (name: 'DEFAULT'; supported: true),
@@ -1236,6 +1236,11 @@ begin
 {$ifdef loongarch64}
   default_target(system_loongarch64_linux);
 {$endif loongarch64}
+
+{$ifdef w65816}
+  default_target(system_w65816_embedded);
+{$endif w65816}
+
 end;
 
 

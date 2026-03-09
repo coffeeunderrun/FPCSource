@@ -676,6 +676,12 @@ Const
         asmcputype : cpu_none;
         fputype : fpu_fd;
   {$endif loongarch64}
+  {$ifdef w65816}
+        cputype : cpu_w65816_native;
+        optimizecputype : cpu_w65816_native;
+        asmcputype : cpu_none;
+        fputype : fpu_soft;
+  {$endif w65816}
 {$endif not GENERIC_CPU}
         asmmode : asmmode_standard;
 {$ifndef jvm}

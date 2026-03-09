@@ -1792,7 +1792,7 @@ Unit AoptObj;
 {$else powerpc}
         p.condition := C_None;
 {$endif powerpc}
-{$ifdef not defined(z80) and not defined(w65816)}
+{$if not defined(z80) and not defined(w65816)}
         p.opcode := aopt_uncondjmp;
 {$endif not z80 and not w65816}
 {$ifdef RISCV}

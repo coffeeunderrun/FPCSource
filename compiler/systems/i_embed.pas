@@ -922,6 +922,74 @@ unit i_embed;
             llvmdatalayout : 'todo';
           );
 
+       system_w65816_embedded_info : tsysteminfo =
+          (
+            system       : system_w65816_embedded;
+            name         : 'Embedded';
+            shortname    : 'Embedded';
+            flags        : [tf_needs_symbol_size,tf_files_case_sensitive,
+                            tf_smartlink_library,
+                            tf_no_objectfiles_when_smartlinking];
+            cpu          : cpu_w65816;
+            unit_env     : '';
+            extradefines : '';
+            exeext       : '';
+            defext       : '.def';
+            scriptext    : '.sh';
+            smartext     : '.sl';
+            unitext      : '.ppu';
+            unitlibext   : '.ppl';
+            asmext       : '.s';
+            objext       : '.rel';
+            resext       : '.res';
+            resobjext    : '.or';
+            sharedlibext : '.so';
+            staticlibext : '.a';
+            staticlibprefix : 'libp';
+            sharedlibprefix : 'lib';
+            sharedClibext : '.so';
+            staticClibext : '.a';
+            staticClibprefix : 'lib';
+            sharedClibprefix : 'lib';
+            importlibprefix : 'libimp';
+            importlibext : '.a';
+            Cprefix      : '';
+            newline      : #10;
+            dirsep       : '/';
+            assem        : as_w65816_ca65;
+            assemextern  : as_w65816_ca65;
+            link         : ld_none;
+            linkextern   : ld_none;
+            ar           : ar_none;
+            res          : res_none;
+            dbg          : dbg_dwarf2;
+            script       : script_unix;
+            endian       : endian_little;
+            alignment    :
+              (
+                procalign            : 1;
+                loopalign            : 1;
+                jumpalign            : 0;
+                jumpalignskipmax     : 0;
+                coalescealign        : 0;
+                coalescealignskipmax : 0;
+                constalignmin        : 0;
+                constalignmax        : 1;
+                varalignmin          : 0;
+                varalignmax          : 1;
+                localalignmin        : 0;
+                localalignmax        : 1;
+                recordalignmin       : 0;
+                recordalignmax       : 1;
+                maxCrecordalign      : 1
+              );
+            first_parm_offset : 4;
+            stacksize    : 1024;
+            stackalign   : 1;
+            abi : abi_default;
+            llvmdatalayout : 'todo';
+          );
+
  implementation
 
 initialization
@@ -985,5 +1053,10 @@ initialization
     set_source_info(system_z80_embedded_info);
   {$endif embedded}
 {$endif CPUZ80}
+{$ifdef CPUW65816}
+  {$ifdef embedded}
+    set_source_info(system_w65816_embedded_info);
+  {$endif embedded}
+{$endif CPUW65816}
 end.
 

@@ -320,6 +320,9 @@ endif
 ifeq ($(CPC_TARGET),loongarch64)
 CPUSUF=loongarch64
 endif
+ifeq ($(CPC_TARGET),w65816)
+CPUSUF=w65816
+endif
 
 # Do not define the default -d$(CPU_TARGET) because that
 # will conflict with our -d$(CPC_TARGET)

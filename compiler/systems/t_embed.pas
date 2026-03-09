@@ -2379,4 +2379,9 @@ initialization
   RegisterExport(system_wasm32_embedded, texportlibwasi);
   RegisterLinker(ld_embedded, TLinkerEmbedded_Wasm);
 {$endif wasm32}
+
+{$ifdef w65816}
+  RegisterTarget(system_w65816_embedded_info);
+{$endif w65816}
+
 end.

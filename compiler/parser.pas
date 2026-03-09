@@ -30,7 +30,6 @@ uses fmodule;
 {$ifdef PREPROCWRITE}
     procedure preprocess(const filename:string);
 {$endif PREPROCWRITE}
-    function compile(const filename:string) : boolean;
     function compile_module(module : tmodule) : boolean;
     procedure parsing_done(module : tmodule);
     procedure initparser;
@@ -45,7 +44,7 @@ implementation
       fksysutl,
 {$ENDIF}
       cclasses,
-      globtype,tokens,systems,globals,verbose,switches,globstat,
+      globtype,tokens,systems,globals,verbose,globstat,
       symbase,symtable,symdef,
       finput,fppu,
       aasmdata,
@@ -61,15 +60,12 @@ implementation
        hp,hp2 :  tmodule;
 
     begin
-
-       module.end_of_parsing;
-
        if (module.is_initial) and
           (status.errorcount=0) then
          { Write Browser Collections }
          do_extractsymbolinfo;
 
-       // olddata.restore(false);
+       module.end_of_parsing;
 
        { Restore all locally modified warning messages }
        RestoreLocalVerbosity(current_settings.pmessage);
@@ -148,7 +144,6 @@ implementation
          InitScannerDirectives;
 
          { scanner }
-         c:=#0;
          set_current_scanner(nil);
          switchesstatestackpos:=0;
 
@@ -343,7 +338,7 @@ implementation
          repeat
            current_scanner.readtoken(true);
            preprocfile.AddSpace;
-           case token of
+           case current_scanner.token of
              _ID :
                begin
                  preprocfile.Add(current_scanner.orgpattern);
@@ -384,12 +379,11 @@ implementation
              _EOF :
                break;
              else
-               preprocfile.Add(tokeninfo^[token].str)
+               preprocfile.Add(tokeninfo^[current_scanner.token].str)
            end;
          until false;
        { free scanner }
          current_scanner.free;
-         current_scanner := nil;
          set_current_scanner(nil);
        { close }
          preprocfile.free;
@@ -402,26 +396,15 @@ implementation
                              Compile a source file
 *****************************************************************************}
 
-    function compile(const filename:string) : boolean;
-
-    var
-      m : TModule;
-
-    begin
-      m:=tppumodule.create(nil,'',filename,false);
-      m.state:=ms_compile;
-      result:=compile_module(m);
-    end;
-
     function compile_module(module : tmodule) : boolean;
 
       var
-         hp,hp2 : tmodule;
          finished : boolean;
          sc : tscannerfile;
 
        begin
          Result:=True;
+
          { parsing a procedure or declaration should be finished }
          if assigned(current_procinfo) then
            internalerror(200811121);
@@ -429,11 +412,6 @@ implementation
            internalerror(200811122);
          inc(module.compilecount);
          parser_current_file:=module.mainsource;
-         { Uses heap memory instead of placing everything on the
-           stack. This is needed because compile() can be called
-           recursively }
-         { handle the postponed case first }
-         flushpendingswitchesstate;
 
        { reset parser, a previous fatal error could have left these variables in an unreliable state, this is
          important for the IDE }
@@ -488,44 +466,35 @@ implementation
          { If the compile level > 1 we get a nice "unit expected" error
            message if we are trying to use a program as unit.}
          try
-           try
-             if (token=_UNIT) or (not module.is_initial) then
-               begin
-                 module.is_unit:=true;
-                 finished:=proc_unit(module);
-               end
-             else if (token=_ID) and (idtoken=_PACKAGE) then
-               begin
-                 module.IsPackage:=true;
-                 finished:=proc_package(module);
-               end
-             else
-               finished:=proc_program(module,token=_LIBRARY);
-           except
-             on ECompilerAbort do
+           if (current_scanner.token=_UNIT) or (not module.is_initial) then
+             begin
+               module.is_unit:=true;
+               finished:=proc_unit(module);
+             end
+           else if (current_scanner.token=_ID) and (current_scanner.idtoken=_PACKAGE) then
+             begin
+               module.IsPackage:=true;
+               finished:=proc_package(module);
+             end
+           else
+             finished:=proc_program(module,current_scanner.token=_LIBRARY);
+         except
+           on ECompilerAbort do
+             raise;
+           on Exception do
+             begin
+               { Generate exception_raised message,
+                 but avoid multiple messages by
+                 guarding with exception_raised global variable }
+               if not exception_raised then
+                 begin
+                   exception_raised:=true;
+                   Message(general_e_exception_raised);
+                 end;
                raise;
-             on Exception do
-               begin
-                 { Generate exception_raised message,
-                   but avoid multiple messages by
-                   guarding with exception_raised global variable }
-                 if not exception_raised then
-                   begin
-                     exception_raised:=true;
-                     Message(general_e_exception_raised);
-                   end;
-                 raise;
-               end;
-           end;
-           Result:=Finished;
-           { the program or the unit at the command line should not need to wait
-             for other units }
-           // if (module.is_initial) and not finished then
-           //  internalerror(2012091901);
-         finally
-            if finished then
-              parsing_done(module);
+             end;
          end;
+         Result:=Finished;
     end;
 
 end.

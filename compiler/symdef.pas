@@ -915,9 +915,9 @@ interface
           seenmarker : pointer; // used for filtering in tcandidate
 {$endif}
 {$ifdef symansistr}
-         section: ansistring;
+          section: ansistring;
 {$else symansistr}
-         section: pshortstring;
+          section: pshortstring;
 {$endif}
           { only needed when actually compiling a unit, no need to save/load from ppu }
           invoke_helper : tprocdef;
@@ -1657,7 +1657,7 @@ implementation
 
     function make_mangledname(const typeprefix:TSymStr;st:TSymtable;const suffix:TSymStr):TSymStr;
       var
-        s,t,
+        s,
         prefix : TSymStr;
         hash : qword;
       begin
@@ -2366,6 +2366,8 @@ implementation
           end;
         if df_generic in defoptions then
           begin
+            { crc generic implementation }
+            ppufile.do_crc:=true;
             if assigned(generictokenbuf) then
               begin
                 sizeleft:=generictokenbuf.size;
@@ -2421,9 +2423,21 @@ implementation
           genconstraintdata.buildderef;
         if assigned(genericparas) then
           begin
-            if not assigned(genericparaderefs) then
-              genericparaderefs:=tfplist.create;
-            genericparaderefs.capacity:=genericparaderefs.count+genericparas.count;
+           { buildderef may be called more than once (getppucrc is called at
+             end-of-interface and again at end-of-implementation; system units
+             also call buildderef a second time from writeppu). Clear any
+             previously accumulated entries so that genericparaderefs.count
+             stays equal to genericparas.count and does not trigger
+             internalerror 2014052303 in deref. }
+           if assigned(genericparaderefs) then
+             begin
+               for i:=0 to genericparaderefs.count-1 do
+                 dispose(pderef(genericparaderefs[i]));
+               genericparaderefs.clear;
+             end
+           else
+             genericparaderefs:=tfplist.create;
+           genericparaderefs.capacity:=genericparas.count;
             for i:=0 to genericparas.count-1 do
               begin
                 sym:=tsym(genericparas.items[i]);
@@ -5918,20 +5932,15 @@ implementation
 
 
     procedure tabstractprocdef.ppuwrite(ppufile:tcompilerppufile);
-      var
-        oldintfcrc : boolean;
       begin
          { released procdef? }
          if not assigned(parast) then
            exit;
          inherited ppuwrite(ppufile);
          ppufile.putderef(returndefderef);
-         oldintfcrc:=ppufile.do_interface_crc;
-         ppufile.do_interface_crc:=false;
          ppufile.putbyte(ord(proctypeoption));
          ppufile.putbyte(ord(proccalloption));
          ppufile.putset(tppuset8(procoptions));
-         ppufile.do_interface_crc:=oldintfcrc;
 
          if (po_explicitparaloc in procoptions) then
            funcretloc[callerside].ppuwrite(ppufile);
@@ -6859,7 +6868,7 @@ implementation
 
     procedure tprocdef.ppuwrite(ppufile:tcompilerppufile);
       var
-        oldintfcrc : boolean;
+        oldcrc : boolean;
         aliasnamescount,i,sizeleft : longint;
         item : TCmdStrListItem;
         buf : array[0..255] of byte;
@@ -6899,7 +6908,7 @@ implementation
          if (po_dispid in procoptions) then
            ppufile.putlongint(dispid);
          { inline stuff }
-         oldintfcrc:=ppufile.do_crc;
+         oldcrc:=ppufile.do_crc;
          ppufile.do_crc:=false;
          ppufile.putset(tppuset1(implprocoptions));
          if has_inlininginfo then
@@ -6926,7 +6935,7 @@ implementation
             item:=TCmdStrListItem(item.next);
           end;
 
-         ppufile.do_crc:=oldintfcrc;
+         ppufile.do_crc:=oldcrc;
 
          { generic tokens for the declaration }
          if assigned(genericdecltokenbuf) and (genericdecltokenbuf.size>0) then
@@ -6958,18 +6967,16 @@ implementation
            browser info is requested, this has no influence on the crc }
          if store_localst and not ppufile.crc_only then
           begin
-            oldintfcrc:=ppufile.do_crc;
+            oldcrc:=ppufile.do_crc;
             ppufile.do_crc:=false;
             tlocalsymtable(localst).ppuwrite(ppufile);
-            ppufile.do_crc:=oldintfcrc;
+            ppufile.do_crc:=oldcrc;
           end;
 
          { node tree for inlining }
-         oldintfcrc:=ppufile.do_crc;
-         ppufile.do_crc:=false;
+
          if has_inlininginfo then
            ppuwritenodetree(ppufile,inlininginfo^.code);
-         ppufile.do_crc:=oldintfcrc;
       end;
 
 
@@ -8150,6 +8157,9 @@ implementation
            indirect crc keeps track of such changes. }
          old_do_indirect_crc:=ppufile.do_indirect_crc;
          ppufile.do_indirect_crc:=true;
+         {$IFDEF Debug_IndirectCRC}
+         writeln('INDIRECT_CRC tobjectdef.ppuwrite START ',hexstr(ppufile.indirect_crc,8));
+         {$ENDIF}
          inherited ppuwrite(ppufile);
          ppufile.putbyte(byte(objecttype));
          ppufile.putbyte(byte(helpertype));
@@ -8181,7 +8191,6 @@ implementation
              ppufile.putbyte(byte(vmtentry^.visibility));
            end;
 
-
          if assigned(ImplementedInterfaces) then
            begin
              ppufile.putlongint(ImplementedInterfaces.Count);
@@ -8206,6 +8215,9 @@ implementation
          if not(df_copied_def in defoptions) then
            tObjectSymtable(symtable).ppuwrite(ppufile);
 
+         {$IFDEF Debug_IndirectCRC}
+         writeln('INDIRECT_CRC tobjectdef.ppuwrite END ',hexstr(ppufile.indirect_crc,8));
+         {$ENDIF}
          ppufile.do_indirect_crc:=old_do_indirect_crc;
       end;
 
@@ -8566,7 +8578,6 @@ implementation
 
     function tobjectdef.vmt_def: trecorddef;
       var
-        where: tsymtable;
         vmttypesym: tsymentry;
       begin
         if not is_unique_objpasdef then

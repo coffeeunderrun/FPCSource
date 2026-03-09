@@ -27,12 +27,12 @@ interface
 
 {$IFDEF FPC_DOTTEDUNITS}
 uses
-  Fcl.CustApp, System.Classes, System.SysUtils, FpcUnit.Test, FpcUnit.Registry, FpcUnit.Utils,
-  FpcUnit.Reports, FpcUnit.Reports.LaTeX, FpcUnit.Reports.XMLTest, FpcUnit.Reports.Plain,
-  FpcUnit.Reports.JUnit, Xml.Dom;
+  Fcl.CustApp, System.Classes, System.SysUtils, System.IniFiles, FpcUnit.Test,
+  FpcUnit.Registry, FpcUnit.Utils, FpcUnit.Reports, FpcUnit.Reports.LaTeX,
+  FpcUnit.Reports.XMLTest, FpcUnit.Reports.Plain, FpcUnit.Reports.JUnit, Xml.Dom;
 {$ELSE FPC_DOTTEDUNITS}
 uses
-  custapp, Classes, SysUtils, fpcunit, testregistry, testutils,
+  custapp, Classes, SysUtils, inifiles, fpcunit, testregistry, testutils,
   fpcunitreport, latextestreport, xmltestreport, plaintestreport,
   junittestreport, dom;
 {$ENDIF FPC_DOTTEDUNITS}
@@ -42,7 +42,7 @@ const
 
 type
   TFormat = (fPlain, fLatex, fXML, fPlainNoTiming, fJUnit);
-  TRunMode = (rmUnknown,rmList,rmSuite,rmAll);
+  TRunMode = (rmUnknown,rmHelp,rmList,rmSuite,rmAll);
 
 var
   DefaultFormat : TFormat = fXML;
@@ -71,6 +71,7 @@ type
       CDefaultsFileNameEnvVar = 'FPCUNITCONFIG';
       CDefaultsFileIniSection = 'defaults';
     function DefaultsFileName: String; virtual;
+    procedure ReadCustomDefaults(Ini: TMemIniFile; Section: string); virtual;
     procedure ReadDefaults; virtual;
   protected
     Class function StrToFormat(const S: String): TFormat;
@@ -99,9 +100,9 @@ type
 implementation
 
 {$IFDEF FPC_DOTTEDUNITS}
-uses System.IniFiles, FpcUnit.Decorator;
+uses FpcUnit.Decorator;
 {$ELSE FPC_DOTTEDUNITS}
-uses inifiles, testdecorator;
+uses testdecorator;
 {$ENDIF FPC_DOTTEDUNITS}
 
 const
@@ -434,15 +435,40 @@ begin
   Result:=ExpandFileName(Result,Location);
 end;
 
+procedure TTestRunner.ReadCustomDefaults(Ini: TMemIniFile; Section: string);
+var
+  s: string;
+begin
+  // Determine runmode (ArgHelp option may be useful in the config due to DefaultRunAllTests)
+  FSuite:=Ini.ReadString(Section,ArgSuite,'');
+  if Ini.ReadBool(Section,ArgHelp,false) then
+    FRunMode:=rmHelp
+  else if FSuite<>'' then
+    FRunMode:=rmSuite
+  else if Ini.ReadBool(Section,ArgAll,false) then
+    FRunMode:=rmAll
+  else if Ini.ReadBool(Section,ArgList,false) then
+    FRunMode:=rmList;
+  // Other options
+  s:=Ini.ReadString(Section,ArgFormat,'');
+  if s<>'' then
+    FormatParam:=StrToFormat(s); // raise exception on error
+  FSkipTiming:=Ini.ReadBool(Section,ArgSkipTiming,FSKipTiming);
+  FSparse:=Ini.ReadBool(Section,ArgSparse,FSparse);
+  FSkipAddressInfo:=Ini.ReadBool(Section,ArgNoAddresses,FSkipAddressInfo);
+  StyleSheet:=Ini.ReadString(Section,ArgStyleSheet,StyleSheet);
+  ShowProgress:=Ini.ReadBool(Section,ArgProgress,ShowProgress);
+  if Ini.ReadBool(Section,ArgStatus,false) then
+    TAssert.StatusEvent:=@DoStatus;
+  NoExitCodeOnError:=Ini.ReadBool(Section,ArgNoExitCode,FNoExitCodeOnError);
+  FileName:=Ini.ReadString(Section,ArgFile,FileName);
+  // (there is no point in reading the ArgNoConfig option here)
+end;
+
 procedure TTestRunner.ReadDefaults;
-
-Const
-  S = CDefaultsFileIniSection;
-
-Var
-  Ini : TMemIniFile;
-  FN,F : String;
-
+var
+  Ini: TMemIniFile;
+  FN: string;
 begin
   FN:=DefaultsFileName;
   if FileExists(FN) then
@@ -452,28 +478,8 @@ begin
       Ini.Options:=Ini.Options+[ifoStripQuotes];
       Ini.SetBoolStringValues(true,['1','true','y','yes','on']);
       Ini.SetBoolStringValues(false,['0','false','n','no','off']);
-      // Determine runmode (option ArgHelp by default, not required to read)
-      FSuite:=Ini.ReadString(S,ArgSuite,'');
-      if (FSuite<>'') then
-        FRunMode:=rmSuite
-      else if Ini.ReadBool(S,ArgAll, false) then
-        FRunMode:=rmAll
-      else if Ini.ReadBool(S,ArgList,False) then
-        FRunMode:=rmList;
-      // Other options
-      F:=Ini.ReadString(S,ArgFormat,'');
-      if (F<>'') then
-        FormatParam:=StrToFormat(F);
-      FSkipTiming:=Ini.ReadBool(S,ArgSkipTiming,FSKipTiming);
-      FSparse:=Ini.ReadBool(S,ArgSparse,FSparse);
-      FSkipAddressInfo:=Ini.ReadBool(S,ArgNoAddresses,FSkipAddressInfo);
-      StyleSheet:=Ini.ReadString(S,ArgStyleSheet,StyleSheet);
-      ShowProgress:=Ini.ReadBool(S,ArgProgress,ShowProgress);
-      if Ini.ReadBool(S,ArgStatus,false) then
-        TAssert.StatusEvent:=@DoStatus;
-      NoExitCodeOnError:=Ini.ReadBool(S,ArgNoExitCode,FNoExitCodeOnError);
-      FileName:=Ini.ReadString(S,ArgFile,FileName);
-      // (there is no point in reading the ArgNoConfig option here)
+
+      ReadCustomDefaults(Ini,CDefaultsFileIniSection);
     finally
       Ini.Free;
     end;
@@ -484,16 +490,10 @@ Function TTestRunner.ParseOptions : Boolean;
 
 begin
   Result:=True;
-  // Maybe show usage
-  if HasOption('h', ArgHelp) or ((ParamCount = 0) and (FRunMode=rmUnknown)) then
-    begin
-    Usage;
-    if not HasOption('h',ArgHelp) then
-      ExitCode:=1;
-    Exit(False);
-    end;
   // Determine runmode
-  if HasOption('s',ArgSuite) then
+  if HasOption('h', ArgHelp) then
+    FRunMode:=rmHelp
+  else if HasOption('s',ArgSuite) then
     begin
     FSuite:=GetOptionValue('s',ArgSuite);
     FRunMode:=rmSuite;
@@ -501,7 +501,13 @@ begin
   else If HasOption('a',ArgAll) then
     FRunMode:=rmAll
   else if HasOption('l',ArgList) then
-    FRunMode:=rmList;
+    FRunMode:=rmList
+  else if FRunMode = rmUnknown then // FRunMode could have been set earlier in ReadDefaults or due DefaultRunAllTests
+    begin
+    Usage;
+    ExitCode:=1;
+    exit;
+    end;
   // Other options
   if HasOption(ArgFormat) then
     FormatParam:=StrToFormat(GetOptionValue(ArgFormat));
@@ -608,19 +614,23 @@ begin
   if (S <> '') then
     begin
     Writeln(S);
-    Exit;
+    ExitCode:=1;
+    exit;
     end;
   if not HasOption('n',ArgNoConfig) then
     ReadDefaults;
-  if Not ParseOptions then
+  if not ParseOptions then
+    begin
+    ExitCode:=1;
     exit;
-  //get a list of all registered tests
+    end;
   Case FRunMode of
+    rmHelp: Usage;
     rmList: ShowTestList;
     rmSuite: RunSuite;
     rmAll: DoTestRun(GetTestRegistry);
-  else
-    Usage
+  else // rmUnknown
+    // do not set the ExitCode here so as not to overwrite the code set in ParseOptions
   end;
 end;
 

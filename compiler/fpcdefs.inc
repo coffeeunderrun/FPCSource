@@ -416,7 +416,7 @@
   {$define support_rodata}
 {$endif loongarch64}
 
-{$ifdef w65816}
+{$ifdef m65xx}
   {$define cpu8bit}
   {$define cpu16bitaddr}
   {$define cpu16bitalu}
@@ -427,7 +427,7 @@
   {$define cpuneedsdivhelper}
   {$define cpuneedsmulhelper}
   {$define cpucapabilities}
-{$endif w65816}
+{$endif m65xx}
 
 { Stabs is not officially supported on 64 bit targets by gdb, except on Mac OS X
   (but there we don't support it)

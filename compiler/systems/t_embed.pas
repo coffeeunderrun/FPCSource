@@ -2380,8 +2380,8 @@ initialization
   RegisterLinker(ld_embedded, TLinkerEmbedded_Wasm);
 {$endif wasm32}
 
-{$ifdef w65816}
-  RegisterTarget(system_w65816_embedded_info);
-{$endif w65816}
+{$ifdef m65xx}
+  RegisterTarget(system_m65xx_embedded_info);
+{$endif m65xx}
 
 end.

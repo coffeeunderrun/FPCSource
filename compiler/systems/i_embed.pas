@@ -922,15 +922,15 @@ unit i_embed;
             llvmdatalayout : 'todo';
           );
 
-       system_w65816_embedded_info : tsysteminfo =
+       system_m65xx_embedded_info : tsysteminfo =
           (
-            system       : system_w65816_embedded;
+            system       : system_m65xx_embedded;
             name         : 'Embedded';
             shortname    : 'Embedded';
             flags        : [tf_needs_symbol_size,tf_files_case_sensitive,
                             tf_smartlink_library,
                             tf_no_objectfiles_when_smartlinking];
-            cpu          : cpu_w65816;
+            cpu          : cpu_m65xx;
             unit_env     : '';
             extradefines : '';
             exeext       : '';
@@ -956,8 +956,8 @@ unit i_embed;
             Cprefix      : '';
             newline      : #10;
             dirsep       : '/';
-            assem        : as_w65816_ca65;
-            assemextern  : as_w65816_ca65;
+            assem        : as_ca65;
+            assemextern  : as_ca65;
             link         : ld_none;
             linkextern   : ld_none;
             ar           : ar_none;
@@ -1053,10 +1053,10 @@ initialization
     set_source_info(system_z80_embedded_info);
   {$endif embedded}
 {$endif CPUZ80}
-{$ifdef CPUW65816}
+{$ifdef CPUM65XX}
   {$ifdef embedded}
-    set_source_info(system_w65816_embedded_info);
+    set_source_info(system_m65xx_embedded_info);
   {$endif embedded}
-{$endif CPUW65816}
+{$endif CPUM65XX}
 end.
 

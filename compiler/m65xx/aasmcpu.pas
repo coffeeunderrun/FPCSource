@@ -18,6 +18,13 @@ const
   O_MOV_DEST = 0;
 
 type
+  tinsflag = (
+    IF_6502,
+    IF_6510,
+    IF_65C02,
+    IF_65C816
+  );
+
   taicpu = class(tai_cpu_abstract_sym)
   end;
 

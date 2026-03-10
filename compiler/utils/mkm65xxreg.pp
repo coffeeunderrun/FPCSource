@@ -1,4 +1,4 @@
-program mkw65816reg;
+program mkm65xxreg;
 
 {$mode objfpc}{$H+}
 
@@ -68,7 +68,7 @@ begin
   writeln('creating ',fn);
   assign(f,fn);
   rewrite(f);
-  writeln(f,'{ don''t edit, this file is generated from w65816reg.dat }');
+  writeln(f,'{ don''t edit, this file is generated from m65xxreg.dat }');
 end;
 
 
@@ -147,7 +147,7 @@ var infile:text;
 
 begin
    { open dat file }
-   assign(infile,'w65816reg.dat');
+   assign(infile,'m65xxreg.dat');
    reset(infile);
    while not(eof(infile)) do
      begin
@@ -204,15 +204,15 @@ var
 
 begin
   { create inc files }
-  openinc(confile,'rw65816con.inc');
-  openinc(supfile,'rw65816sup.inc');
-  openinc(numfile,'rw65816num.inc');
-  openinc(stdfile,'rw65816std.inc');
-  openinc(stabfile,'rw65816sta.inc');
-  openinc(dwarffile,'rw65816dwa.inc');
-  openinc(norfile,'rw65816nor.inc');
-  openinc(rnifile,'rw65816rni.inc');
-  openinc(srifile,'rw65816sri.inc');
+  openinc(confile,'rm65xxcon.inc');
+  openinc(supfile,'rm65xxsup.inc');
+  openinc(numfile,'rm65xxnum.inc');
+  openinc(stdfile,'rm65xxstd.inc');
+  openinc(stabfile,'rm65xxsta.inc');
+  openinc(dwarffile,'rm65xxdwa.inc');
+  openinc(norfile,'rm65xxnor.inc');
+  openinc(rnifile,'rm65xxrni.inc');
+  openinc(srifile,'rm65xxsri.inc');
   first:=true;
   for i:=0 to regcount-1 do
     begin

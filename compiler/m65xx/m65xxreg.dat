@@ -1,5 +1,5 @@
 ;
-; w65816 registers
+; MOS 65xx registers
 ;
 ; layout
 ; <name>,<value>,<stdname>,<stabidx>,<dwarfidx>

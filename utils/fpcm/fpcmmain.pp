@@ -75,7 +75,7 @@ interface
     { Please keep this order, see OSCPUSupported below
       TCpu=(cpuNone,
     i386,m68k,powerpc,sparc,x86_64,arm,powerpc64,avr,armeb,
-    mips,mipsel,mips64,mips64el,jvm,i8086,aarch64,wasm32,sparc64,riscv32,riscv64,xtensa,z80,loongarch64,w65816
+    mips,mipsel,mips64,mips64el,jvm,i8086,aarch64,wasm32,sparc64,riscv32,riscv64,xtensa,z80,loongarch64,m65xx
   );}
   TCpu = fpmkunit.TCpu;
       { Please keep this order, see OSCPUSupported below
@@ -93,7 +93,7 @@ interface
       TCpu=(
         c_none,i386,m68k,powerpc,sparc,x86_64,arm,powerpc64,avr,
         armeb,armel,mips,mipsel,mips64,mips64el,jvm,i8086,aarch64,
-        wasm32,sparc64,riscv32,riscv64,xtensa,z80,loongarch64,w65816
+        wasm32,sparc64,riscv32,riscv64,xtensa,z80,loongarch64,m65xx
       );
 
       TOS=(
@@ -113,19 +113,19 @@ interface
       CpuStr : array[TCpu] of string=(
         'none','i386','m68k','powerpc','sparc','x86_64','arm','powerpc64','avr',
         'armeb', 'armel', 'mips', 'mipsel', 'mips64', 'mips64el', 'jvm','i8086','aarch64',
-        'wasm32','sparc64','riscv32','riscv64','xtensa','z80', 'loongarch64','w65816'
+        'wasm32','sparc64','riscv32','riscv64','xtensa','z80', 'loongarch64','m65xx'
       );
 
       CpuSuffix : array[TCpu] of string=(
         '_none','_i386','_m68k','_powerpc','_sparc','_x86_64','_arm','_powerpc64','_avr',
         '_armeb', '_armel', '_mips', '_mipsel', '_mips64', '_mips64el', '_jvm','_i8086','_aarch64',
-        '_wasm32','_sparc64','_riscv32','_riscv64','xtensa','_z80', 'loongarch64','_w65816'
+        '_wasm32','_sparc64','_riscv32','_riscv64','xtensa','_z80', 'loongarch64','_m65xx'
       );
 
       ppcSuffix : array[TCpu] of string=(
         'none','386','68k','ppc','sparc','x64','arm','ppc64','avr',
         'armeb', 'armel', 'mips', 'mipsel', 'mips64', 'mips64el', 'jvm','8086','a64',
-        'wasm32','sparc64','rv32','rv64','xtensa','z80', 'loongarch64','65816'
+        'wasm32','sparc64','rv32','rv64','xtensa','z80', 'loongarch64','65xx'
       );
 
       OSStr : array[TOS] of string=(
@@ -159,7 +159,7 @@ interface
 {$else}
       OSCpuPossible : array[TOS,TCpu] of boolean =
       (
-        { os          none   i386    m68k  ppc    sparc  x86_64 arm    ppc64  avr    armeb  armel  mips   mipsel mips64 misp64el jvm    i8086  aarch64 wasm32 sparc64 riscv32 riscv64 xtensa z80   loongarch64 w65816 }
+        { os          none   i386    m68k  ppc    sparc  x86_64 arm    ppc64  avr    armeb  armel  mips   mipsel mips64 misp64el jvm    i8086  aarch64 wasm32 sparc64 riscv32 riscv64 xtensa z80   loongarch64 m65xx }
         { none  }   ( false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,   false, false, false,  false, false, false,  false,  false, false, false, false),
         { linux }   ( false, true,  true,  true,  true,  true,  true,  true,  false, true,  false, true,  true,  true,  true,    false, false, true,   false, true,  true,   true,   true,  false, true,  false),
         { go32v2 }  ( false, true,  false, false, false, false, false, false, false, false, false, false, false, false, false,   false, false, false,  false, false, false,  false,  false, false, false, false),

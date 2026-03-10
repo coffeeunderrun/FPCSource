@@ -1,4 +1,4 @@
-program mkw65816ins;
+program mkm65xxins;
 
 {$mode objfpc}{$H+}
 
@@ -6,7 +6,7 @@ uses SysUtils;
 
 const
   Version = '1.0.0';
-  HeaderStr = '{ don''t edit, this file is generated from w65816ins.dat; to regenerate, run ''make insdat'' in the compiler directory }';
+  HeaderStr = '{ don''t edit, this file is generated from m65xxins.dat; to regenerate, run ''make insdat'' in the compiler directory }';
   MaxOperands = 2;
 
   ParamTypes: array [0..17, 0..1] of string = (
@@ -30,14 +30,16 @@ const
     ('(d,s)', 'OT_REL_S_IND')
   );
 
-  FlagTypes: array [0..2, 0..1] of String = (
-    ('none',  ''),
-    ('6502',  'IF_6502'),
-    ('65816', 'IF_65816')
+  FlagTypes: array [0..4, 0..1] of String = (
+    ('none',   ''),
+    ('6502',   'IF_6502'),
+    ('6510',   'IF_6510'),
+    ('65c02',  'IF_65C02'),
+    ('65c816', 'IF_65C816')
   );
 
 type
-  TW65816InsDatOutputFiles = class
+  Tm65xxInsDatOutputFiles = class
   public
     OpFile: TextFile;
     NOpFile: TextFile;
@@ -48,29 +50,29 @@ type
     destructor Destroy;override;
   end;
 
-constructor TW65816InsDatOutputFiles.Create;
+constructor Tm65xxInsDatOutputFiles.Create;
   begin
-    AssignFile(OpFile, 'w65816op.inc');
+    AssignFile(OpFile, 'm65xxop.inc');
     Rewrite(OpFile);
     Writeln(OpFile, HeaderStr);
     Writeln(OpFile,'(');
 
-    AssignFile(NOpFile, 'w65816nop.inc');
+    AssignFile(NOpFile, 'm65xxnop.inc');
     Rewrite(NOpFile);
     Writeln(NOpFile, HeaderStr);
 
-    AssignFile(StdOpNames, 'w65816stdopnames.inc');
+    AssignFile(StdOpNames, 'm65xxstdopnames.inc');
     Rewrite(StdOpNames);
     Writeln(StdOpNames, HeaderStr);
     Writeln(StdOpNames,'(');
     
-    AssignFile(InsTabFile, 'w65816tab.inc');
+    AssignFile(InsTabFile, 'm65xxtab.inc');
     Rewrite(InsTabFile);
     Writeln(InsTabFile, HeaderStr);
     Writeln(InsTabFile, '(');
   end;
 
-destructor TW65816InsDatOutputFiles.Destroy;
+destructor Tm65xxInsDatOutputFiles.Destroy;
 begin
   CloseFile(OpFile);
   CloseFile(NOpFile);
@@ -84,7 +86,7 @@ var
   I: Integer;
 begin
   for I := Low(ParamTypes) to High(ParamTypes) do
-    if ParamTypes[I, 0] = ParamTypeStr then exit(I);
+    if ParamTypes[I, 0] = LowerCase(ParamTypeStr) then exit(I);
   raise Exception.Create('Invalid param type: ''' + ParamTypeStr + '''');
 end;
 
@@ -93,13 +95,13 @@ var
   I: Integer;
 begin
   for I := Low(FlagTypes) to High(FlagTypes) do
-    if FlagTypes[I, 0] = FlagTypeStr then exit(I);
+    if FlagTypes[I, 0] = LowerCase(FlagTypeStr) then exit(I);
   raise Exception.Create('Invalid flag type: ''' + FlagTypeStr + '''');
 end;
 
 var
   InsDatFile: TextFile;
-  OutputFiles: TW65816InsDatOutputFiles = nil;
+  OutputFiles: Tm65xxInsDatOutputFiles = nil;
   CurrentLine, Op: String;
   ParamIdx, ParenStart, ParenEnd: Integer;
   FirstIns: Boolean = true;
@@ -107,12 +109,12 @@ var
   S_Split, S_Params: TStringArray;
 
 begin
-  WriteLn('FPC W65816 Instruction Table Converter Version ', Version);
-  AssignFile(InsDatFile,'../w65816/w65816ins.dat');
+  WriteLn('FPC MOS 65XX Instruction Table Converter Version ', Version);
+  AssignFile(InsDatFile,'../m65xx/m65xxins.dat');
   Reset(InsDatFile);
 
   try
-    OutputFiles := TW65816InsDatOutputFiles.Create;
+    OutputFiles := Tm65xxInsDatOutputFiles.Create;
 
     while not EoF(InsDatFile) do begin
       ReadLn(InsDatFile, CurrentLine);

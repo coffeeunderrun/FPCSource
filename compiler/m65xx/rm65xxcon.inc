@@ -1,4 +1,4 @@
-{ don't edit, this file is generated from w65816reg.dat }
+{ don't edit, this file is generated from m65xxreg.dat }
 NR_NO = tregister($00000000);
 NR_A = tregister($01010000);
 NR_X = tregister($01030001);

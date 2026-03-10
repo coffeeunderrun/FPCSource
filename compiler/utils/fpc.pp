@@ -91,7 +91,7 @@ Const
       'xtensa': Result := 'xtensa';
       'z80': Result := 'z80';
       'wasm32': Result := 'wasm32';
-      'w65816': Result := 'w65816';
+      'm65xx': Result := 'm65xx';
       else
         error('Illegal processor type "'+processorstr+'"');
     end;
@@ -179,10 +179,10 @@ Const
          ppcbin:='ppcloongarch64';
          processorname:='loongarch64';
     {$endif loongarch64}
-    {$ifdef w65816}
-         ppcbin:='ppcw65816';
-         processorname:='w65816';
-    {$endif w65816}
+    {$ifdef m65xx}
+         ppcbin:='ppcm65xx';
+         processorname:='m65xx';
+    {$endif m65xx}
   end;
 
   function SplitPath(Const HStr:String):String;

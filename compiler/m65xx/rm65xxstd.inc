@@ -1,4 +1,4 @@
-{ don't edit, this file is generated from w65816reg.dat }
+{ don't edit, this file is generated from m65xxreg.dat }
 'INVALID',
 'a',
 'x',

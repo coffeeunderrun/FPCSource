@@ -22,7 +22,7 @@ uses
 **************************************}
 
 {$ifndef NOAGCPUCA65}
-  ,agcpuca65
+  ,agca65
 {$endif}
   ;
 

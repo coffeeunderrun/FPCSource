@@ -18,7 +18,7 @@ uses
 *****************************************************************************}
 
 type
-  TAsmOp = {$I w65816op.inc}
+  TAsmOp = {$I m65xxop.inc}
 
   { This should define the array of instructions as string }
   op2strtable = array [TAsmOp] of string[4];
@@ -29,7 +29,7 @@ const
   { Last value of opcode enumeration  }
   lastop  = high(tasmop);
 
-  std_op2str:op2strtable = {$I w65816stdopnames.inc}
+  std_op2str:op2strtable = {$I m65xxstdopnames.inc}
 
   { call/reg instructions are not considered as jmp instructions for the usage cases of
     this set }
@@ -69,17 +69,17 @@ const
 
 type
   { Number of registers used for indexing in tables }
-  tregisterindex = 0..{$i rw65816nor.inc} - 1;
+  tregisterindex = 0..{$i rm65xxnor.inc} - 1;
 
 const
   { Available Superregisters }
-  {$i rw65816sup.inc}
+  {$i rm65xxsup.inc}
 
   { No Subregisters }
   R_SUBWHOLE = R_SUBL;
 
   { Available Registers }
-  {$i rw65816con.inc}
+  {$i rm65xxcon.inc}
 
   { Integer Super registers first and last }
   first_int_supreg = RS_A;
@@ -96,15 +96,15 @@ const
   regnumber_count_bsstart = 32;
 
   regnumber_table : array [tregisterindex] of tregister = (
-    {$i rw65816num.inc}
+    {$i rm65xxnum.inc}
   );
 
   regstabs_table : array [tregisterindex] of shortint = (
-    {$i rw65816sta.inc}
+    {$i rm65xxsta.inc}
   );
 
   regdwarf_table : array [tregisterindex] of shortint = (
-    {$i rw65816dwa.inc}
+    {$i rm65xxdwa.inc}
   );
 
   { registers which may be destroyed by calls }
@@ -282,15 +282,15 @@ uses
 
 const
   std_regname_table : TRegNameTable = (
-    {$i rw65816std.inc}
+    {$i rm65xxstd.inc}
   );
 
   regnumber_index : array [tregisterindex] of tregisterindex = (
-    {$i rw65816rni.inc}
+    {$i rm65xxrni.inc}
   );
 
   std_regname_index : array [tregisterindex] of tregisterindex = (
-    {$i rw65816sri.inc}
+    {$i rm65xxsri.inc}
   );
 
 function reg_cgsize(const reg: tregister): tcgsize;

@@ -1,4 +1,4 @@
-{ don't edit, this file is generated from w65816ins.dat; to regenerate, run 'make insdat' in the compiler directory }
+{ don't edit, this file is generated from m65xxins.dat; to regenerate, run 'make insdat' in the compiler directory }
 (
 A_None,
 A_ADC,

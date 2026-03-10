@@ -4,11 +4,9 @@ unit cpuinfo;
 
 interface
 
-
 uses globtype;
 
 type
-  pbestreal   = ^bestreal;
   bestreal    = double;
   bestrealrec = TDoubleRec;
   ts32real    = single;
@@ -16,11 +14,15 @@ type
   ts80real    = type extended;
   ts128real   = type extended;
   ts64comp    = comp;
-  
+
+  pbestreal = ^bestreal;
+
   tcputype = (
     cpu_none,
-    cpu_w65816_native,
-    cpu_w65816_emulation
+    cpu_6502,
+    cpu_6510,
+    cpu_65c02,
+    cpu_65c816
   );
 
   tfputype = (
@@ -45,7 +47,7 @@ type
 
 const
   { target cpu string (used by compiler options) }
-  target_cpu_string = 'w65816';
+  target_cpu_string = '65xx';
 
   { Is there support for dealing with multiple microcontrollers available }
   ControllerSupport = false;
@@ -71,9 +73,12 @@ const
     pocall_softfloat
   ];
 
-  cputypestr : array[tcputype] of string[16] = ('',
-    'W65816_NATIVE',
-    'W65816_EMULATION'
+  cputypestr : array[tcputype] of string[16] = (
+    '',
+    '6502',
+    '6510',
+    '65C02',
+    '65C816'
   );
 
   fputypestr : array[tfputype] of string[6] = (
@@ -84,8 +89,10 @@ const
 
   cpu_capabilities : array [tcputype] of set of tcpuflags = (
     { cpu_none  } [],
-    { cpu_w65816_native  } [],
-    { cpu_w65816_emulation } []
+    { cpu_6502  } [],
+    { cpu_6510  } [],
+    { cpu_65c02 } [],
+    { cpu_65c816  } []
   );
 
   { Supported optimizations, only used for information }

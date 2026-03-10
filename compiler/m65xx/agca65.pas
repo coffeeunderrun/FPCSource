@@ -1,4 +1,4 @@
-unit agcpuca65;
+unit agca65;
 
 {$I fpcdefs.inc}
 
@@ -65,12 +65,12 @@ begin
 end;
 
 const
-  as_w65816_ca65_info: tasminfo = (
-      id     : as_w65816_ca65;
+  as_ca65_info: tasminfo = (
+      id     : as_ca65;
       idtxt  : 'CA65';
       asmbin : 'ca65';
       asmcmd : '-o $OBJ $EXTRAOPT $ASM';
-      supported_targets : [system_w65816_embedded];
+      supported_targets : [system_m65xx_embedded];
       flags : [af_none];
       labelprefix : 'L';
       labelmaxlen : -1;
@@ -79,5 +79,5 @@ const
     );
 
 begin
-  RegisterAssembler(as_w65816_ca65_info, TCA65Assembler);
+  RegisterAssembler(as_ca65_info, TCA65Assembler);
 end.

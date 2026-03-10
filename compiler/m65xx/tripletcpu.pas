@@ -14,7 +14,7 @@ uses globals, cpuinfo;
 
 function tripletcpustr(tripletstyle: ttripletstyle): ansistring;
 begin
-  result:='w65816';
+  result:='m65xx';
 end;
 
 end.

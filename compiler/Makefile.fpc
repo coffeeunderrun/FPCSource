@@ -321,7 +321,7 @@ ifeq ($(CPC_TARGET),loongarch64)
 CPUSUF=loongarch64
 endif
 ifeq ($(CPC_TARGET),m65xx)
-CPUSUF=m65xx
+CPUSUF=65xx
 endif
 
 # Do not define the default -d$(CPU_TARGET) because that

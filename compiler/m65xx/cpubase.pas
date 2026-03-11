@@ -5,10 +5,8 @@ unit cpubase;
 interface
 
 uses
-  cutils,
-  cclasses,
-  globtype,
-  globals,
+  cutils, cclasses,
+  globtype, globals,
   cpuinfo,
   aasmbase,
   cgbase;
@@ -26,10 +24,11 @@ type
 const
   { First value of opcode enumeration }
   firstop = low(tasmop);
-  { Last value of opcode enumeration  }
-  lastop  = high(tasmop);
 
-  std_op2str:op2strtable = {$I m65xxstdopnames.inc}
+  { Last value of opcode enumeration  }
+  lastop = high(tasmop);
+
+  std_op2str: op2strtable = {$I m65xxstdopnames.inc}
 
   { call/reg instructions are not considered as jmp instructions for the usage cases of
     this set }
@@ -69,17 +68,17 @@ const
 
 type
   { Number of registers used for indexing in tables }
-  tregisterindex = 0..{$i rm65xxnor.inc} - 1;
+  tregisterindex = 0..{$i r65xxnor.inc} - 1;
 
 const
   { Available Superregisters }
-  {$i rm65xxsup.inc}
+  {$i r65xxsup.inc}
 
   { No Subregisters }
   R_SUBWHOLE = R_SUBL;
 
   { Available Registers }
-  {$i rm65xxcon.inc}
+  {$i r65xxcon.inc}
 
   { Integer Super registers first and last }
   first_int_supreg = RS_A;
@@ -96,15 +95,15 @@ const
   regnumber_count_bsstart = 32;
 
   regnumber_table : array [tregisterindex] of tregister = (
-    {$i rm65xxnum.inc}
+    {$i r65xxnum.inc}
   );
 
   regstabs_table : array [tregisterindex] of shortint = (
-    {$i rm65xxsta.inc}
+    {$i r65xxsta.inc}
   );
 
   regdwarf_table : array [tregisterindex] of shortint = (
-    {$i rm65xxdwa.inc}
+    {$i r65xxdwa.inc}
   );
 
   { registers which may be destroyed by calls }
@@ -165,14 +164,14 @@ const
 type
   TResFlags = (
     F_NotPossible,
-    F_NN,
-    F_N,
-    F_NV,
-    F_V,
-    F_NC,
-    F_C,
-    F_NZ,
-    F_Z
+    F_PL,
+    F_MI,
+    F_VC,
+    F_VS,
+    F_CC,
+    F_CS,
+    F_NE,
+    F_EQ
   );
 
 {*****************************************************************************
@@ -260,11 +259,11 @@ const
                                   Helpers
 *****************************************************************************}
 
-function reg_cgsize(const reg: tregister) : tcgsize;
-function cgsize2subreg(regtype: tregistertype; s:Tcgsize):Tsubregister;
-function findreg_by_number(r:Tregister):tregisterindex;
-function std_regnum_search(const s:string):Tregister;
-function std_regname(r:Tregister):string;
+function reg_cgsize(const reg: tregister): tcgsize;
+function cgsize2subreg(regtype: tregistertype; s: Tcgsize): Tsubregister;
+function findreg_by_number(r: Tregister): tregisterindex;
+function std_regnum_search(const s: string): Tregister;
+function std_regname(r: Tregister): string;
 
 function inverse_cond(const c: TAsmCond): TAsmCond; {$ifdef USEINLINE}inline;{$endif USEINLINE}
 function conditions_equal(const c1, c2: TAsmCond): boolean; {$ifdef USEINLINE}inline;{$endif USEINLINE}
@@ -272,25 +271,25 @@ function conditions_equal(const c1, c2: TAsmCond): boolean; {$ifdef USEINLINE}in
 { Checks if Subset is a subset of c (e.g. "less than" is a subset of "less than or equal" }
 function condition_in(const Subset, c: TAsmCond): Boolean;
 
-function dwarf_reg(r:tregister):byte;
+function dwarf_reg(r: tregister): byte;
 function eh_return_data_regno(nr: longint): longint;
 
 implementation
 
 uses
-  rgBase,verbose;
+  rgBase, verbose;
 
 const
-  std_regname_table : TRegNameTable = (
-    {$i rm65xxstd.inc}
+  std_regname_table: TRegNameTable = (
+    {$i r65xxstd.inc}
   );
 
-  regnumber_index : array [tregisterindex] of tregisterindex = (
-    {$i rm65xxrni.inc}
+  regnumber_index: array [tregisterindex] of tregisterindex = (
+    {$i r65xxrni.inc}
   );
 
-  std_regname_index : array [tregisterindex] of tregisterindex = (
-    {$i rm65xxsri.inc}
+  std_regname_index: array [tregisterindex] of tregisterindex = (
+    {$i r65xxsri.inc}
   );
 
 function reg_cgsize(const reg: tregister): tcgsize;
@@ -302,43 +301,43 @@ begin
         R_SUBNONE,
         R_SUBL,
         R_SUBH:
-          reg_cgsize:=OS_8;
+          reg_cgsize := OS_8;
         R_SUBW:
-          reg_cgsize:=OS_16;
+          reg_cgsize := OS_16;
         else
           internalerror(2020041901);
       end;
     R_ADDRESSREGISTER:
-      reg_cgsize:=OS_16;
+      reg_cgsize := OS_16;
     else
       internalerror(2011021905);
     end;
 end;
 
-function cgsize2subreg(regtype: tregistertype; s:Tcgsize):Tsubregister;
+function cgsize2subreg(regtype: tregistertype; s: Tcgsize): Tsubregister;
 begin
-  cgsize2subreg:=R_SUBWHOLE;
+  cgsize2subreg := R_SUBWHOLE;
 end;
 
-function findreg_by_number(r:Tregister):tregisterindex;
+function findreg_by_number(r: Tregister): tregisterindex;
 begin
-  result:=rgBase.findreg_by_number_table(r,regnumber_index);
+  result := rgBase.findreg_by_number_table(r, regnumber_index);
 end;
 
-function std_regnum_search(const s:string):Tregister;
+function std_regnum_search(const s: string): Tregister;
 begin
-  result:=regnumber_table[findreg_by_name_table(s,std_regname_table,std_regname_index)];
+  result := regnumber_table[findreg_by_name_table(s, std_regname_table, std_regname_index)];
 end;
 
-function std_regname(r:Tregister):string;
+function std_regname(r: Tregister): string;
 var
-  p : tregisterindex;
+  p: tregisterindex;
 begin
-  p:=findreg_by_number_table(r,regnumber_index);
-  if p<>0 then
-    result:=std_regname_table[p]
+  p := findreg_by_number_table(r, regnumber_index);
+  if p <> 0 then
+    result := std_regname_table[p]
   else
-    result:=generic_regname(r);
+    result := generic_regname(r);
 end;
 
 function inverse_cond(const c: TAsmCond): TAsmCond; {$ifdef USEINLINE}inline;{$endif USEINLINE}
@@ -366,23 +365,21 @@ end;
 { Checks if Subset is a subset of c (e.g. "less than" is a subset of "less than or equal" }
 function condition_in(const Subset, c: TAsmCond): Boolean;
 begin
-  { Z80 has no condition subsets }
-  Result := {(c.cond = C_None) or} conditions_equal(Subset, c);
+  Result := (c = C_None) or conditions_equal(Subset, c);
 end;
 
-function dwarf_reg(r:tregister):byte;
+function dwarf_reg(r: tregister): byte;
 var
-  reg : shortint;
+  reg: shortint;
 begin
-  reg:=regdwarf_table[findreg_by_number(r)];
-  if reg=-1 then
-    internalerror(200603251);
-  result:=reg;
+  reg := regdwarf_table[findreg_by_number(r)];
+  if reg = -1 then internalerror(200603251);
+  result := reg;
 end;
 
 function eh_return_data_regno(nr: longint): longint;
 begin
-  result:=-1;
+  result := -1;
 end;
 
 end.

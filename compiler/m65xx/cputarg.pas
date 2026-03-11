@@ -21,9 +21,17 @@ uses
              Assemblers
 **************************************}
 
-{$ifndef NOAGCPUCA65}
+{$ifndef NOAGCA65}
   ,agca65
 {$endif}
+
+{**************************************
+             Optimizer
+**************************************}
+
+{$ifndef NOOPT}
+  ,aoptcpu
+{$endif NOOPT}
   ;
 
 end.

@@ -91,7 +91,7 @@ Const
       'xtensa': Result := 'xtensa';
       'z80': Result := 'z80';
       'wasm32': Result := 'wasm32';
-      'm65xx': Result := 'm65xx';
+      'm65xx': Result := '65xx';
       else
         error('Illegal processor type "'+processorstr+'"');
     end;
@@ -180,7 +180,7 @@ Const
          processorname:='loongarch64';
     {$endif loongarch64}
     {$ifdef m65xx}
-         ppcbin:='ppcm65xx';
+         ppcbin:='ppc65xx';
          processorname:='m65xx';
     {$endif m65xx}
   end;

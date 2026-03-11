@@ -4844,6 +4844,7 @@ procedure read_arguments(cmd:TCmdStr);
       {$endif loongarch64}
 
       {$ifdef m65xx}
+        def_system_macro('CPU65XX');
         def_system_macro('CPUM65XX');
         def_system_macro('CPU16');
         def_system_macro('FPC_CURRENCY_IS_INT64');

@@ -5,8 +5,8 @@ unit agca65;
 interface
 
 uses
-  globtype,systems,
-  aasmtai,aasmdata,
+  globtype, systems,
+  aasmtai, aasmdata,
   assemble,
   cpubase;
 
@@ -23,15 +23,15 @@ type
 implementation
 
 uses
-  cutils,globals,verbose,
-  aasmbase,aasmcpu,
+  cutils, globals, verbose,
+  aasmbase, aasmcpu,
   cpuinfo,
-  cgbase,cgutils;
+  cgbase, cgutils;
 
 const
   line_length = 70;
-  max_tokens : longint = 25;
-  ait_const2str : array [aitconst_128bit..aitconst_64bit_unaligned] of string[20] = (
+  max_tokens: longint = 25;
+  ait_const2str: array [aitconst_128bit..aitconst_64bit_unaligned] of string[20] = (
     #9''#9,#9'DQ'#9,#9'DD'#9,#9'DW'#9,#9'DB'#9,
     #9'FIXMESLEB',#9'FIXEMEULEB',
     #9'DD RVA'#9,#9'DD SECREL32'#9,

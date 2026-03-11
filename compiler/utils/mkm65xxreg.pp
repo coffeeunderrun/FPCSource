@@ -204,15 +204,15 @@ var
 
 begin
   { create inc files }
-  openinc(confile,'rm65xxcon.inc');
-  openinc(supfile,'rm65xxsup.inc');
-  openinc(numfile,'rm65xxnum.inc');
-  openinc(stdfile,'rm65xxstd.inc');
-  openinc(stabfile,'rm65xxsta.inc');
-  openinc(dwarffile,'rm65xxdwa.inc');
-  openinc(norfile,'rm65xxnor.inc');
-  openinc(rnifile,'rm65xxrni.inc');
-  openinc(srifile,'rm65xxsri.inc');
+  openinc(confile,'r65xxcon.inc');
+  openinc(supfile,'r65xxsup.inc');
+  openinc(numfile,'r65xxnum.inc');
+  openinc(stdfile,'r65xxstd.inc');
+  openinc(stabfile,'r65xxsta.inc');
+  openinc(dwarffile,'r65xxdwa.inc');
+  openinc(norfile,'r65xxnor.inc');
+  openinc(rnifile,'r65xxrni.inc');
+  openinc(srifile,'r65xxsri.inc');
   first:=true;
   for i:=0 to regcount-1 do
     begin

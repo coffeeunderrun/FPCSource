@@ -104,7 +104,7 @@ ifeq ($(CPU_TARGET),loongarch64)
 PPSUF=loongarch64
 endif
 ifeq ($(CPU_TARGET),m65xx)
-PPSUF=m65xx
+PPSUF=65xx
 endif
 
 # cross compilers uses full cpu_target, not just ppc-suffix

@@ -73,7 +73,16 @@ implementation
          function  MakeSharedLibrary:boolean;override;
        end;
 
+       { TLinkerEmbedded_m65xx }
 
+       TLinkerEmbedded_m65xx = class(texternallinker)
+       private
+         function WriteResponseFile: Boolean;
+       public
+         constructor Create; override;
+         procedure SetDefaultInfo; override;
+         function MakeExecutable: Boolean; override;
+       end;
 
 {*****************************************************************************
                                   TlinkerEmbedded
@@ -2304,6 +2313,114 @@ function TLinkerEmbedded_Wasm.MakeSharedLibrary: boolean;
     MakeSharedLibrary:=success;
   end;
 
+{*****************************************************************************
+                              TlinkerEmbedded_65xx
+*****************************************************************************}
+
+constructor TLinkerEmbedded_m65xx.Create;
+begin
+  inherited Create;
+end;
+
+function TLinkerEmbedded_m65xx.WriteResponseFile: Boolean;
+var
+  LinkRes: TLinkRes;
+  HPath: TCmdStrListItem;
+  Str: TCmdStr;
+begin
+  LinkRes := TLinkRes.Create(OutputExeDir + Info.ResName, true);
+  with LinkRes do begin
+    Add('MEMORY {');
+    case current_settings.CpuType of
+      { TODO: can I use a provided HEAP size parameter to adjust RAM size? }
+      { While different targets can have different memory layouts, I'd like to find a way to make this more configurable.
+        I suppose a user always has the option to skip the linking stage or pass a custom script to the linker. }
+      cpu_6502, cpu_6510, cpu_65c02: begin
+        Add('ZP:    START=$0000, SIZE=$100,  TYPE=RW;');
+        Add('STACK: START=$0100, SIZE=$100,  TYPE=RW;');
+        Add('RAM:   START=$0200, SIZE=$7D00, TYPE=RW;');
+        Add('ROM:   START=$8000, SIZE=$8000, TYPE=RO;');
+      end;
+      cpu_65c816: begin end;
+    end;
+    Add('}');
+    Add('SEGMENTS {');
+    Add('ZEROPAGE: LOAD=ZP,  TYPE=ZP;');
+    Add('DATA:     LOAD=ROM, TYPE=RW,  RUN=RAM;');
+    Add('BSS:      LOAD=RAM, TYPE=BSS;');
+    Add('CODE:     LOAD=ROM, TYPE=RO;');
+    Add('RODATA:   LOAD=ROM, TYPE=RO;');
+    Add('VECTORS:  LOAD=ROM, TYPE=RO,  START=$FFFA;');
+    Add('}');
+    Add('SYMBOLS {');
+    case current_settings.CpuType of
+      cpu_6502, cpu_6510, cpu_65c02: begin
+        Add('__stkbtm: TYPE=WEAK, VALUE=$100;');
+        Add('__stktop: TYPE=WEAK, VALUE=$200;');
+      end;
+      cpu_65c816: begin end;
+    end;
+    Add('}');
+    WriteToDisk;
+    Free;
+  end;
+  result := true;
+end;
+
+procedure TLinkerEmbedded_m65xx.SetDefaultInfo;
+begin
+  Info.ExeCmd[1] := 'ld65 $OPT $MAP -o $EXE -C $RES';
+end;
+
+function TLinkerEmbedded_m65xx.MakeExecutable: Boolean;
+var
+  BinStr, CmdStr, MapStr, Str: TCmdStr;
+  Path: TCmdStrListItem;
+begin
+  WriteResponseFile;
+
+  if cs_link_map in current_settings.GlobalSwitches then
+    MapStr := '-m ' + MaybeQuoted(ChangeFileExt(current_module.ExeFileName, '.map'));
+
+  SplitBinCmd(Info.ExeCmd[1], BinStr, CmdStr);
+
+  // Library search paths
+  Path := TCmdStrListItem(LibrarySearchPath.First);
+  while Assigned(Path) do begin
+    Str := Path.Str;
+    if (cs_link_on_target in current_settings.GlobalSwitches) then Str := ScriptFixFileName(Str);
+    CmdStr := '-L' + Str + ' ' + CmdStr;
+    Path := TCmdStrListItem(Path.Next);
+  end;
+
+  // Startup
+  Str := FindObjectFile('prt0', '', false);
+  if Str <> '' then CmdStr := MaybeQuoted(Str) + ' ' + CmdStr;
+
+  // Objects
+  Path := TCmdStrListItem(ObjectFiles.First);
+  while Assigned(Path) do begin
+    Str := Path.Str;
+    if Str = '' then continue;
+    if not (cs_link_on_target in current_settings.GlobalSwitches) then Str := FindObjectFile(Str, '', false);
+    CmdStr := MaybeQuoted(Str) + ' ' + CmdStr;
+    Path := TCmdStrListItem(Path.Next);
+  end;
+
+  // Libraries
+  Path := TCmdStrListItem(StaticLibFiles.First);
+  while Assigned(Path) do begin
+    CmdStr := MaybeQuoted(Path.Str) + ' ' + CmdStr;
+    Path := TCmdStrListItem(Path.Next);
+  end;
+
+  Replace(CmdStr, '$EXE', MaybeQuoted(current_module.ExeFileName));
+  Replace(CmdStr, '$RES', MaybeQuoted(OutputExeDir + Info.ResName));
+  Replace(CmdStr, '$OPT', Info.ExtraOptions);
+  Replace(cmdstr, '$MAP', MapStr);
+
+  result := DoExec(FindUtil(UtilsPrefix + BinStr), CmdStr, true, false);
+end;
 
 {*****************************************************************************
                                      Initialize
@@ -2382,6 +2499,7 @@ initialization
 
 {$ifdef m65xx}
   RegisterTarget(system_m65xx_embedded_info);
+  RegisterLinker(ld_embedded, TLinkerEmbedded_m65xx);
 {$endif m65xx}
 
 end.

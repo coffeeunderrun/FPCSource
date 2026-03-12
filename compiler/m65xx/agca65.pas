@@ -71,11 +71,11 @@ const
       asmbin : 'ca65';
       asmcmd : '-o $OBJ $EXTRAOPT $ASM';
       supported_targets : [system_m65xx_embedded];
-      flags : [af_none];
+      flags : [af_needar];
       labelprefix : 'L';
       labelmaxlen : -1;
       comment : '; ';
-      dollarsign: 's';
+      dollarsign: '$';
     );
 
 begin

@@ -2333,6 +2333,14 @@ Implementation
             arfinishcmd : ''
           );
 
+      ar_ar65_info : tarinfo =
+          (
+            id          : ar_ar65;
+            addfilecmd  : '';
+            arfirstcmd  : '';
+            arcmd       : 'ar65 r $LIB $FILES';
+            arfinishcmd : ''
+          );
 
 initialization
   RegisterAr(ar_gnu_ar_info);
@@ -2342,4 +2350,5 @@ initialization
   RegisterAr(ar_watcom_wlib_omf_scripted_info);
   RegisterAr(ar_sdcc_sdar_info);
   RegisterAr(ar_sdcc_sdar_scripted_info);
+  RegisterAr(ar_ar65_info);
 end.

@@ -2329,6 +2329,7 @@ var
   Str: TCmdStr;
 begin
   LinkRes := TLinkRes.Create(OutputExeDir + Info.ResName, true);
+  {$ifdef m65xx}
   with LinkRes do begin
     Add('MEMORY {');
     case current_settings.CpuType of
@@ -2364,6 +2365,7 @@ begin
     WriteToDisk;
     Free;
   end;
+  {$endif m65xx}
   result := true;
 end;
 

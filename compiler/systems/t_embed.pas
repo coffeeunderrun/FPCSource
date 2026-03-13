@@ -2340,9 +2340,10 @@ begin
         Add('ZP:    START=$0000, SIZE=$100,  TYPE=RW;');
         Add('STACK: START=$0100, SIZE=$100,  TYPE=RW;');
         Add('RAM:   START=$0200, SIZE=$7D00, TYPE=RW;');
-        Add('ROM:   START=$8000, SIZE=$8000, TYPE=RO;');
+        Add('ROM:   START=$8000, SIZE=$8000, TYPE=RO, FILLVAL=$EA;');
       end;
       cpu_65c816: begin end;
+      else internalerror(202603111);
     end;
     Add('}');
     Add('SEGMENTS {');
@@ -2360,6 +2361,7 @@ begin
         Add('__stktop: TYPE=WEAK, VALUE=$200;');
       end;
       cpu_65c816: begin end;
+      else internalerror(202603111);
     end;
     Add('}');
     WriteToDisk;
@@ -2395,6 +2397,13 @@ begin
     Path := TCmdStrListItem(Path.Next);
   end;
 
+  // Libraries
+  Path := TCmdStrListItem(StaticLibFiles.First);
+  while Assigned(Path) do begin
+    CmdStr := MaybeQuoted(Path.Str) + ' ' + CmdStr;
+    Path := TCmdStrListItem(Path.Next);
+  end;
+
   // Startup
   Str := FindObjectFile('prt0', '', false);
   if Str <> '' then CmdStr := MaybeQuoted(Str) + ' ' + CmdStr;
@@ -2406,13 +2415,6 @@ begin
     if Str = '' then continue;
     if not (cs_link_on_target in current_settings.GlobalSwitches) then Str := FindObjectFile(Str, '', false);
     CmdStr := MaybeQuoted(Str) + ' ' + CmdStr;
-    Path := TCmdStrListItem(Path.Next);
-  end;
-
-  // Libraries
-  Path := TCmdStrListItem(StaticLibFiles.First);
-  while Assigned(Path) do begin
-    CmdStr := MaybeQuoted(Path.Str) + ' ' + CmdStr;
     Path := TCmdStrListItem(Path.Next);
   end;
 

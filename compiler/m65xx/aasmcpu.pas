@@ -83,7 +83,9 @@ begin
       NR_A: result := taicpu.op_reg_ref(A_LDA, r, ref);
       NR_X: result := taicpu.op_reg_ref(A_LDX, r, ref);
       NR_Y: result := taicpu.op_reg_ref(A_LDY, r, ref);
-    end else
+      else internalerror(2004010403);
+    end;
+    else
       internalerror(200401041);
   end;
 end;
@@ -95,8 +97,9 @@ begin
       NR_A: result := taicpu.op_ref_reg(A_STA, ref, r);
       NR_X: result := taicpu.op_ref_reg(A_STX, ref, r);
       NR_Y: result := taicpu.op_ref_reg(A_STY, ref, r);
-    end else
-      internalerror(2004010403);
+      else internalerror(2004010403);
+    end;
+    else internalerror(2004010403);
   end;
 end;
 
